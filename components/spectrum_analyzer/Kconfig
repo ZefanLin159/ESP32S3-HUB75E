@@ -1,0 +1,13 @@
+menu "Spectrum Analyzer Configuration"
+
+    config SPECTRUM_NUM_BINS
+        int "Number of spectrum bins"
+        range 8 64
+        default 16
+
+    config SPECTRUM_SMOOTHING
+        int "Spectrum smoothing factor (0-99)"
+        range 0 99
+        default 70
+
+endmenu

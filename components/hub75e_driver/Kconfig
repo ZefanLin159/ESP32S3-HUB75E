@@ -1,0 +1,110 @@
+menu "HUB75E Display Driver"
+
+    config HUB75E_WIDTH
+        int "Panel width (pixels)"
+        default 64
+
+    config HUB75E_HEIGHT
+        int "Panel height (pixels)"
+        default 64
+
+    # Data pins use the lower GPIO range, away from USB (19/20) and
+    # serial JTAG (43/44) pins.
+    config HUB75E_PIN_R1
+        int "R1 data GPIO"
+        range 0 48
+        default 35
+
+    config HUB75E_PIN_G1
+        int "G1 data GPIO"
+        range 0 48
+        default 36
+
+    config HUB75E_PIN_B1
+        int "B1 data GPIO"
+        range 0 48
+        default 37
+
+    config HUB75E_PIN_R2
+        int "R2 data GPIO"
+        range 0 48
+        default 14
+
+    config HUB75E_PIN_G2
+        int "G2 data GPIO"
+        range 0 48
+        default 12
+
+    config HUB75E_PIN_B2
+        int "B2 data GPIO"
+        range 0 48
+        default 13
+
+    config HUB75E_PIN_A
+        int "Address A GPIO"
+        range 0 48
+        default 8
+
+    config HUB75E_PIN_B
+        int "Address B GPIO"
+        range 0 48
+        default 18
+
+    config HUB75E_PIN_C
+        int "Address C GPIO"
+        range 0 48
+        default 5
+
+    config HUB75E_PIN_D
+        int "Address D GPIO"
+        range 0 48
+        default 17
+
+    config HUB75E_PIN_E
+        int "Address E GPIO"
+        range 0 48
+        default 21
+
+    config HUB75E_PIN_LAT
+        int "Latch GPIO"
+        range 0 48
+        default 4
+
+    config HUB75E_PIN_OE
+        int "Output enable GPIO"
+        range 0 48
+        default 15
+
+    config HUB75E_PIN_CLK
+        int "Clock GPIO"
+        range 0 48
+        default 16
+
+    config HUB75E_OE_ACTIVE_LOW
+        bool "OE active low (most panels)"
+        default y
+        help
+            Most HUB75E panels enable output when OE is LOW.
+            Disable this if your panel enables on HIGH.
+
+    config HUB75E_LAT_ACTIVE_HIGH
+        bool "Latch active high"
+        default y
+        help
+            Latch data on a HIGH pulse. Disable for LOW pulse.
+
+    config HUB75E_CLK_ACTIVE_HIGH
+        bool "Clock active high"
+        default y
+        help
+            Shift data on a HIGH clock pulse. Disable for LOW pulse.
+
+    config HUB75E_CLOCK_DELAY_US
+        int "Clock delay (us)"
+        range 0 50
+        default 0
+        help
+            Add a delay between clock edges. Increase if the panel
+            misses pixels due to fast GPIO transitions.
+
+endmenu

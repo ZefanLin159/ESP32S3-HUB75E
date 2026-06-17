@@ -1,0 +1,7 @@
+menu "UI Animations Configuration"
+
+    config UI_ANIMATION_DEFAULT_COLOR
+        hex "Default UI color (RGB565)"
+        default 0xF800
+
+endmenu

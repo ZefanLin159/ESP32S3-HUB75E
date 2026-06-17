@@ -1,0 +1,26 @@
+idf_component_register(
+    SRCS
+        "app_main.c"
+        "message_broker.c"
+        "main_controller.c"
+        "audio_agent.c"
+        "display_agent.c"
+        "storage_agent.c"
+        "hal/hal_buttons.c"
+        "hal/hal_power.c"
+        "hal/hal_mic.c"
+        "hal/hal_audio_output.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        freertos
+        nvs_flash
+        driver
+        fatfs
+        sdmmc
+        esp_timer
+        heap
+        audio_decoder
+        spectrum_analyzer
+        hub75e_driver
+        ui_animations
+)

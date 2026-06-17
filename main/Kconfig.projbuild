@@ -1,0 +1,97 @@
+menu "Pixel Music Companion Configuration"
+
+    config PMC_AUDIO_SAMPLE_RATE
+        int "Audio sample rate (Hz)"
+        range 8000 96000
+        default 44100
+
+    config PMC_DISPLAY_FPS
+        int "Display refresh rate (fps)"
+        range 10 60
+        default 30
+
+    config PMC_BUTTON_DEBOUNCE_MS
+        int "Button debounce time (ms)"
+        range 10 200
+        default 50
+
+    config PMC_BUTTON_LONG_PRESS_MS
+        int "Button long press threshold (ms)"
+        range 500 3000
+        default 1000
+
+    config PMC_BUTTON_SLEEP_PRESS_MS
+        int "Sleep button hold threshold (ms)"
+        range 1000 5000
+        default 3000
+
+    menu "GPIO Pins"
+
+        config PMC_BUTTON_LEFT_GPIO
+            int "Left button GPIO"
+            range 0 48
+            default 0
+
+        config PMC_BUTTON_RIGHT_GPIO
+            int "Right button GPIO"
+            range 0 48
+            default 1
+
+        config PMC_BUTTON_OK_GPIO
+            int "OK button GPIO"
+            range 0 48
+            default 2
+
+        config PMC_I2S_BCLK_GPIO
+            int "I2S BCLK GPIO"
+            range 0 48
+            default 6
+
+        config PMC_I2S_WS_GPIO
+            int "I2S WS/LRC GPIO"
+            range 0 48
+            default 7
+
+        config PMC_I2S_DOUT_GPIO
+            int "I2S DOUT GPIO"
+            range 0 48
+            default 38
+
+        config PMC_I2S_DIN_GPIO
+            int "I2S DIN GPIO (microphone)"
+            range 0 48
+            default 3
+
+        config PMC_MIC_BCLK_GPIO
+            int "Microphone I2S BCLK GPIO"
+            range 0 48
+            default 33
+
+        config PMC_MIC_WS_GPIO
+            int "Microphone I2S WS/LRC GPIO"
+            range 0 48
+            default 34
+
+        config PMC_SD_MOSI_GPIO
+            int "SD card MOSI GPIO"
+            range 0 48
+            default 40
+
+        config PMC_SD_MISO_GPIO
+            int "SD card MISO GPIO"
+            range 0 48
+            default 41
+
+        config PMC_SD_SCLK_GPIO
+            int "SD card SCLK GPIO"
+            range 0 48
+            default 42
+
+        config PMC_SD_CS_GPIO
+            int "SD card CS GPIO"
+            range 0 48
+            default 45
+
+    endmenu
+
+endmenu

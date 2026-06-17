@@ -1,0 +1,14 @@
+menu "Audio Decoder Configuration"
+
+    config AUDIO_DECODER_WAV_ENABLED
+        bool "Enable WAV decoder"
+        default y
+
+    config AUDIO_DECODER_MP3_ENABLED
+        bool "Enable MP3 decoder (stub)"
+        default y
+        help
+            Currently implemented as a placeholder. A full MP3 decoder
+            (e.g. minimp3 or Helix) will be integrated later.
+
+endmenu

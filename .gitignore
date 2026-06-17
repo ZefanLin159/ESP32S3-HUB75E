@@ -1,0 +1,25 @@
+# ESP-IDF build output
+build/
+sdkconfig
+sdkconfig.old
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs / temp
+*.log
+*.tmp
+.DS_Store
+
+# Secrets
+config/secrets.h
+*.pem
+*.key
+
+# Large test assets
+sd_card/MUSIC/
+sd_card/IMAGE/
+!.gitkeep
