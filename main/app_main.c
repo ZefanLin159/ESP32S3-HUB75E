@@ -37,11 +37,20 @@ void app_main(void)
 
     ESP_ERROR_CHECK(display_agent_init());
 
-    /* Default to a full-white screen on power-up to verify panel/wiring. */
-    hub75e_driver_clear(0xFFFF);
-    hub75e_driver_refresh();
-
-    ESP_LOGI(TAG, "Minimal init complete, entering idle loop");
+    /* SD card is optional. If it fails, stay in the boot animation carousel. */
+    esp_err_t sd_ret = storage_agent_init();
+    if (sd_ret == ESP_OK) {
+        sd_ret = storage_agent_scan();
+        if (sd_ret == ESP_OK) {
+            ESP_ERROR_CHECK(main_controller_init());
+            ESP_ERROR_CHECK(hal_buttons_init());
+            ESP_LOGI(TAG, "Full init complete, entering idle loop");
+        } else {
+            ESP_LOGW(TAG, "SD card scan failed, staying in boot animation mode");
+        }
+    } else {
+        ESP_LOGW(TAG, "SD card not available, staying in boot animation mode");
+    }
 
     /* Idle loop. */
     while (1) {

@@ -86,6 +86,8 @@ static void handle_message(const message_t *msg)
     case MSG_BUTTON_LEFT_SHORT:
         if (s_state == STATE_MUSIC) {
             send_message(MSG_PLAY_PREV, 0, NULL, 0);
+        } else if (s_state == STATE_PHOTO) {
+            send_message(MSG_PHOTO_PREV, 0, NULL, 0);
         } else if (s_state == STATE_SETTINGS) {
             ESP_LOGI(TAG, "Menu up");
         }
@@ -94,6 +96,8 @@ static void handle_message(const message_t *msg)
     case MSG_BUTTON_RIGHT_SHORT:
         if (s_state == STATE_MUSIC) {
             send_message(MSG_PLAY_NEXT, 0, NULL, 0);
+        } else if (s_state == STATE_PHOTO) {
+            send_message(MSG_PHOTO_NEXT, 0, NULL, 0);
         } else if (s_state == STATE_SETTINGS) {
             ESP_LOGI(TAG, "Menu down");
         }

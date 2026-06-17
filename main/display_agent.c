@@ -3,6 +3,8 @@
 #include "hub75e_driver.h"
 #include "spectrum_analyzer.h"
 #include "ui_animations.h"
+#include "image_processor.h"
+#include "storage_agent.h"
 #include "sdkconfig.h"
 
 #include "freertos/FreeRTOS.h"
@@ -19,6 +21,11 @@ static const char *TAG = "display_agent";
 static volatile display_mode_t s_mode = DISPLAY_MODE_BOOT;
 static volatile bool s_needs_redraw = true;
 static volatile uint32_t s_boot_start_ms = 0;
+
+/* Photo viewer state. */
+static volatile int s_photo_index = 0;
+static volatile int s_photo_frame_index = 0;
+static volatile uint32_t s_photo_next_frame_ms = 0;
 
 static void render_music_screen(void)
 {
@@ -51,16 +58,44 @@ static void render_boot_screen(void)
     ui_draw_boot_animation(fb, HUB75E_WIDTH, HUB75E_HEIGHT, anim, anim_ms);
 }
 
+static void load_current_photo(uint16_t *fb)
+{
+    int count = storage_get_image_count();
+    if (count <= 0) {
+        ui_clear(fb, HUB75E_WIDTH, HUB75E_HEIGHT, ui_rgb(20, 20, 20));
+        ui_draw_rect(fb, HUB75E_WIDTH, HUB75E_HEIGHT,
+                     16, 28, HUB75E_WIDTH - 32, 8, ui_rgb(100, 255, 100));
+        return;
+    }
+
+    if (s_photo_index < 0) {
+        s_photo_index = count - 1;
+    } else if (s_photo_index >= count) {
+        s_photo_index = 0;
+    }
+
+    const char *path = storage_get_image_path(s_photo_index);
+    if (path == NULL) {
+        ui_clear(fb, HUB75E_WIDTH, HUB75E_HEIGHT, ui_rgb(20, 20, 20));
+        return;
+    }
+
+    esp_err_t ret = image_load_frame_to_rgb565(path, s_photo_frame_index,
+                                                fb, HUB75E_WIDTH, HUB75E_HEIGHT,
+                                                IMG_FIT_COVER);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to load image %s: %s", path, esp_err_to_name(ret));
+        ui_clear(fb, HUB75E_WIDTH, HUB75E_HEIGHT, ui_rgb(20, 0, 0));
+    }
+}
+
 static void render_photo_screen(void)
 {
     uint16_t *fb = hub75e_driver_get_framebuffer();
     if (fb == NULL) {
         return;
     }
-    ui_clear(fb, HUB75E_WIDTH, HUB75E_HEIGHT, ui_rgb(20, 20, 20));
-    ui_draw_rect(fb, HUB75E_WIDTH, HUB75E_HEIGHT,
-                 16, 16, HUB75E_WIDTH - 32, HUB75E_HEIGHT - 32,
-                 ui_rgb(100, 255, 100));
+    load_current_photo(fb);
 }
 
 static void render_settings_screen(void)
@@ -105,12 +140,43 @@ static void display_task(void *arg)
                 s_needs_redraw = true;
             } else if (msg.type == MSG_DISPLAY_UPDATE) {
                 s_needs_redraw = true;
+            } else if (msg.type == MSG_PHOTO_NEXT && s_mode == DISPLAY_MODE_PHOTO) {
+                s_photo_index++;
+                s_photo_frame_index = 0;
+                s_photo_next_frame_ms = 0;
+                s_needs_redraw = true;
+            } else if (msg.type == MSG_PHOTO_PREV && s_mode == DISPLAY_MODE_PHOTO) {
+                s_photo_index--;
+                s_photo_frame_index = 0;
+                s_photo_next_frame_ms = 0;
+                s_needs_redraw = true;
+            }
+        }
+
+        if (s_mode == DISPLAY_MODE_PHOTO) {
+            uint32_t now_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            if (now_ms >= s_photo_next_frame_ms) {
+                s_needs_redraw = true;
             }
         }
 
         if (s_needs_redraw || s_mode == DISPLAY_MODE_BOOT) {
             render();
             s_needs_redraw = false;
+
+            if (s_mode == DISPLAY_MODE_PHOTO) {
+                /* Advance GIF frame if applicable. */
+                const char *path = storage_get_image_path(s_photo_index);
+                if (path != NULL && image_is_animated(path)) {
+                    int frame_count = image_frame_count(path);
+                    s_photo_frame_index++;
+                    if (s_photo_frame_index >= frame_count) {
+                        s_photo_frame_index = 0;
+                    }
+                    uint32_t now_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
+                    s_photo_next_frame_ms = now_ms + image_frame_delay_ms(path, s_photo_frame_index);
+                }
+            }
         }
 
         hub75e_driver_refresh();
@@ -153,6 +219,10 @@ esp_err_t display_agent_set_mode(display_mode_t mode)
     s_needs_redraw = true;
     if (mode == DISPLAY_MODE_BOOT) {
         s_boot_start_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    } else if (mode == DISPLAY_MODE_PHOTO) {
+        s_photo_index = 0;
+        s_photo_frame_index = 0;
+        s_photo_next_frame_ms = 0;
     }
     ESP_LOGI(TAG, "Display mode changed to %d", (int)mode);
     return ESP_OK;

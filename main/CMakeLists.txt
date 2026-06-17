@@ -23,4 +23,5 @@ idf_component_register(
         spectrum_analyzer
         hub75e_driver
         ui_animations
+        image_processor
 )

@@ -45,6 +45,10 @@ typedef enum {
     MSG_STORAGE_MOUNTED,
     MSG_STORAGE_UNMOUNTED,
     MSG_STORAGE_SCAN_DONE,
+
+    /* Photo viewer control */
+    MSG_PHOTO_NEXT,
+    MSG_PHOTO_PREV,
 } message_type_t;
 
 typedef struct {
