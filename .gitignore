@@ -3,6 +3,9 @@ build/
 sdkconfig
 sdkconfig.old
 
+# ESP-IDF managed components (downloaded from registry)
+managed_components/
+
 # IDE
 .vscode/
 .idea/
