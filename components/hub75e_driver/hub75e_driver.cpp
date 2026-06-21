@@ -115,16 +115,10 @@ void hub75e_driver_refresh(void)
         return;
     }
 
-    /* Flush the local RGB565 framebuffer to the DMA-backed panel. */
-    for (int y = 0; y < HUB75E_HEIGHT; y++) {
-        const uint16_t *row = &s_framebuffer[y * HUB75E_WIDTH];
-        for (int x = 0; x < HUB75E_WIDTH; x++) {
-            s_dma_display->drawPixel(x, y, row[x]);
-        }
-    }
-
-    /* On ESP32-S3 the CPU cache must be flushed so the DMA engine sees the updates. */
-    s_dma_display->flushFrameBuffer();
+    /* Flush the local RGB565 framebuffer to the DMA-backed panel.
+       Use drawRGBBitmap like the working reference project; the DMA
+       library handles the update without an explicit cache flush. */
+    s_dma_display->drawRGBBitmap(0, 0, s_framebuffer, HUB75E_WIDTH, HUB75E_HEIGHT);
 }
 
 void hub75e_driver_set_brightness(uint8_t brightness)
@@ -156,7 +150,6 @@ void hub75e_driver_show_test_pattern(uint32_t duration_ms, uint16_t color)
             test_bitmap[i] = color;
         }
         s_dma_display->drawRGBBitmap(0, 0, test_bitmap, HUB75E_WIDTH, HUB75E_HEIGHT);
-        s_dma_display->flushFrameBuffer();
         heap_caps_free(test_bitmap);
     } else {
         s_dma_display->fillScreen(color);
